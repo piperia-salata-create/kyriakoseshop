@@ -1,1 +1,27 @@
 @import "tailwindcss";
+
+@theme {
+  /* Typography - using CSS variables from next/font */
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
+
+  /* Color Palette */
+  --color-primary: #0f172a;
+  --color-secondary: #c0a062;
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+}
+
+/* Global Reset */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-background);
+  color: var(--color-primary);
+  line-height: 1.6;
+}

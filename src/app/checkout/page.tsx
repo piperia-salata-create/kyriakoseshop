@@ -3,6 +3,8 @@
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import { useState, FormEvent, useEffect } from "react";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 
 export default function CheckoutPage() {
   const { cartItems, cartTotal, clearCart } = useCart();
@@ -95,110 +97,80 @@ export default function CheckoutPage() {
           <h2 className="text-xl font-semibold mb-6">Billing Details</h2>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">First Name</label>
-                <input
-                  type="text"
-                  name="first_name"
-                  required
-                  className="border border-gray-300 rounded-md p-2"
-                  value={formData.first_name}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">Last Name</label>
-                <input
-                  type="text"
-                  name="last_name"
-                  required
-                  className="border border-gray-300 rounded-md p-2"
-                  value={formData.last_name}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">Address</label>
-              <input
-                type="text"
-                name="address_1"
+              <Input
+                label="First Name"
+                name="first_name"
                 required
-                className="border border-gray-300 rounded-md p-2"
-                value={formData.address_1}
+                value={formData.first_name}
+                onChange={handleChange}
+              />
+              <Input
+                label="Last Name"
+                name="last_name"
+                required
+                value={formData.last_name}
                 onChange={handleChange}
               />
             </div>
+
+            <Input
+              label="Address"
+              name="address_1"
+              required
+              value={formData.address_1}
+              onChange={handleChange}
+            />
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">City</label>
-                <input
-                  type="text"
-                  name="city"
-                  required
-                  className="border border-gray-300 rounded-md p-2"
-                  value={formData.city}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">Postcode / ZIP</label>
-                <input
-                  type="text"
-                  name="postcode"
-                  required
-                  className="border border-gray-300 rounded-md p-2"
-                  value={formData.postcode}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">Country</label>
-              <input
-                type="text"
-                name="country"
+              <Input
+                label="City"
+                name="city"
                 required
-                className="border border-gray-300 rounded-md p-2"
-                value={formData.country}
+                value={formData.city}
+                onChange={handleChange}
+              />
+              <Input
+                label="Postcode / ZIP"
+                name="postcode"
+                required
+                value={formData.postcode}
                 onChange={handleChange}
               />
             </div>
 
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">Email</label>
-              <input
-                type="email"
-                name="email"
-                required
-                className="border border-gray-300 rounded-md p-2"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </div>
+            <Input
+              label="Country"
+              name="country"
+              required
+              value={formData.country}
+              onChange={handleChange}
+            />
 
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium">Phone</label>
-              <input
-                type="tel"
-                name="phone"
-                required
-                className="border border-gray-300 rounded-md p-2"
-                value={formData.phone}
-                onChange={handleChange}
-              />
-            </div>
+            <Input
+              label="Email"
+              type="email"
+              name="email"
+              required
+              value={formData.email}
+              onChange={handleChange}
+            />
 
-            <button
+            <Input
+              label="Phone"
+              type="tel"
+              name="phone"
+              required
+              value={formData.phone}
+              onChange={handleChange}
+            />
+
+            <Button
               type="submit"
               disabled={isSubmitting}
-              className="mt-6 w-full py-4 bg-black text-white text-lg font-semibold rounded-md hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-6 w-full"
             >
               {isSubmitting ? 'Placing Order...' : 'Place Order'}
-            </button>
+            </Button>
           </form>
         </div>
 

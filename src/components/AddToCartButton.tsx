@@ -2,6 +2,7 @@
 
 import { useCart } from "@/context/CartContext";
 import { Product } from "@/lib/woocommerce";
+import Button from "./ui/Button";
 
 export default function AddToCartButton({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -12,12 +13,13 @@ export default function AddToCartButton({ product }: { product: Product }) {
   };
 
   return (
-    <button
+    <Button
       onClick={handleAddToCart}
-      className="mt-4 w-full md:w-auto px-8 py-4 bg-black text-white text-lg font-semibold rounded-md hover:bg-gray-800 transition-colors"
+      size="lg"
+      className="mt-4 w-full md:w-auto"
       type="button"
     >
       Add to Cart
-    </button>
+    </Button>
   );
 }

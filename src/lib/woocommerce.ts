@@ -11,7 +11,7 @@ export interface Product {
   short_description: string;
 }
 
-export async function getProducts(): Promise<Product[]> {
+export async function getProducts(perPage: number = 10): Promise<Product[]> {
   const wordpressUrl = process.env.NEXT_PUBLIC_WORDPRESS_URL;
   const consumerKey = process.env.WC_CONSUMER_KEY?.trim();
   const consumerSecret = process.env.WC_CONSUMER_SECRET?.trim();
@@ -26,14 +26,14 @@ export async function getProducts(): Promise<Product[]> {
   const baseUrl = wordpressUrl.replace(/\/$/, "");
   const endpoint = `${baseUrl}/wp-json/wc/v3/products`;
   
-  const url = `${endpoint}?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}`;
+  const url = `${endpoint}?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}&per_page=${perPage}`;
 
   const res = await fetch(url, {
     headers: {
       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       "Accept": "application/json",
     },
-    cache: "no-store",
+    next: { revalidate: 60 },
   });
 
   if (!res.ok) {
@@ -42,6 +42,11 @@ export async function getProducts(): Promise<Product[]> {
 
   const data = await res.json();
   return data as Product[];
+}
+
+export async function getProductBySlug(slug: string): Promise<Product | null> {
+  const products = await getProducts(100); // Fetch up to 100 products to find by slug
+  return products.find((p) => p.slug === slug) || null;
 }
 
 export async function getProductById(id: string | number): Promise<Product | null> {
@@ -66,7 +71,7 @@ export async function getProductById(id: string | number): Promise<Product | nul
       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       "Accept": "application/json",
     },
-    cache: "no-store",
+    next: { revalidate: 60 },
   });
 
   if (!res.ok) {

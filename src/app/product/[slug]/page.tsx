@@ -1,4 +1,4 @@
-import { getProductById } from "@/lib/woocommerce";
+import { getProductById, getProducts, getProductBySlug } from "@/lib/woocommerce";
 import { notFound } from "next/navigation";
 import AddToCartButton from "@/components/AddToCartButton";
 import Image from "next/image";
@@ -9,16 +9,28 @@ interface Props {
   searchParams: Promise<{ id?: string }>;
 }
 
-export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+// Enable on-demand ISR for products not in the static params list
+export const dynamicParams = true;
+
+// Generate static params for the top 50 products at build time
+export async function generateStaticParams() {
+  const products = await getProducts(50);
+  
+  return products.map((product) => ({
+    slug: product.slug,
+  }));
+}
+
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
+  const { slug } = await params;
   const { id } = await searchParams;
 
-  if (!id) {
-    return {
-      title: "Product Not Found",
-    };
+  // Try to get product by slug first, then by id (for backward compatibility)
+  let product = id ? await getProductById(id) : null;
+  
+  if (!product && slug) {
+    product = await getProductBySlug(slug);
   }
-
-  const product = await getProductById(id);
 
   if (!product) {
     return {
@@ -40,18 +52,15 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 
 export default async function ProductPage({ params, searchParams }: Props) {
   // In Next.js 15+, params and searchParams are Promises that must be awaited
+  const { slug } = await params;
   const { id } = await searchParams;
-  await params; // Await params to satisfy Next.js requirements, even if we don't use slug for fetching
 
-  if (!id) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-8">
-        <p className="text-xl text-red-500">Product ID is missing from the URL.</p>
-      </div>
-    );
+  // Try to get product by slug first, then by id (for backward compatibility)
+  let product = slug ? await getProductBySlug(slug) : null;
+  
+  if (!product && id) {
+    product = await getProductById(id);
   }
-
-  const product = await getProductById(id);
 
   if (!product) {
     notFound();
