@@ -5,20 +5,9 @@
 [build.environment]
   NEXT_TELEMETRY_DISABLED = "1"
 
-[context.production.environment]
-  NEXT_PUBLIC_WORDPRESS_URL = "https://example.com"
-  WC_CONSUMER_KEY = "dummy_key"
-  WC_CONSUMER_SECRET = "dummy_secret"
-
-[context.deploy-preview.environment]
-  NEXT_PUBLIC_WORDPRESS_URL = "https://example.com"
-  WC_CONSUMER_KEY = "dummy_key"
-  WC_CONSUMER_SECRET = "dummy_secret"
-
-[context.branch-deploy.environment]
-  NEXT_PUBLIC_WORDPRESS_URL = "https://example.com"
-  WC_CONSUMER_KEY = "dummy_key"
-  WC_CONSUMER_SECRET = "dummy_secret"
+# Environment-specific variables (NEXT_PUBLIC_WORDPRESS_URL, WC_CONSUMER_KEY, WC_CONSUMER_SECRET)
+# should be configured in Netlify UI: Site settings → Build & deploy → Environment variables
+# Do NOT commit secret values to this file.
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
