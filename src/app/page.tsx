@@ -33,6 +33,12 @@ export default async function Home() {
                   <div className="w-full h-64 bg-gray-100 rounded-md mb-4 flex items-center justify-center text-gray-400">No Image</div>
                 )}
                 <h2 className="text-lg font-semibold mb-2 line-clamp-2">{product.name}</h2>
+                {product.short_description && (
+                  <p 
+                    className="text-sm text-gray-500 mb-3 line-clamp-2"
+                    dangerouslySetInnerHTML={{ __html: product.short_description }}
+                  />
+                )}
                 <p className="text-xl font-bold mt-auto text-gray-900">€{product.price}</p>
               </Link>
             ))}

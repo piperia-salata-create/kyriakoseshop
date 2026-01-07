@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function CartPage() {
-  const { cartItems, removeFromCart, cartTotal, clearCart } = useCart();
+  const { cartItems, removeFromCart, updateQuantity, cartTotal, clearCart } = useCart();
   const [mounted, setMounted] = useState(false);
 
   // Prevent hydration mismatch by ensuring we only render on the client
@@ -65,7 +65,19 @@ export default function CartPage() {
 
               {/* Quantity */}
               <div className="flex items-center gap-2">
-                <span className="text-gray-600">Qty: {item.quantity}</span>
+                <button
+                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                  className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100"
+                >
+                  -
+                </button>
+                <span className="text-gray-600 min-w-[2ch] text-center">{item.quantity}</span>
+                <button
+                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                  className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100"
+                >
+                  +
+                </button>
               </div>
 
               {/* Remove Button */}
