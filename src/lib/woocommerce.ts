@@ -16,8 +16,10 @@ export async function getProducts(): Promise<Product[]> {
   const consumerKey = process.env.WC_CONSUMER_KEY?.trim();
   const consumerSecret = process.env.WC_CONSUMER_SECRET?.trim();
 
+  // Return empty array if env vars are missing (for build time)
   if (!wordpressUrl || !consumerKey || !consumerSecret) {
-    throw new Error("Missing WooCommerce environment variables");
+    console.warn("Missing WooCommerce environment variables - returning empty products");
+    return [];
   }
 
   // Remove trailing slash from URL if present to avoid double slashes
@@ -47,8 +49,10 @@ export async function getProductById(id: string | number): Promise<Product | nul
   const consumerKey = process.env.WC_CONSUMER_KEY?.trim();
   const consumerSecret = process.env.WC_CONSUMER_SECRET?.trim();
 
+  // Return null if env vars are missing (for build time)
   if (!wordpressUrl || !consumerKey || !consumerSecret) {
-    throw new Error("Missing WooCommerce environment variables");
+    console.warn("Missing WooCommerce environment variables - returning null");
+    return null;
   }
 
   // Remove trailing slash from URL if present to avoid double slashes

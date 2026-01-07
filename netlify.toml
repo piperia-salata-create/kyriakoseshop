@@ -5,5 +5,20 @@
 [build.environment]
   NEXT_TELEMETRY_DISABLED = "1"
 
+[context.production.environment]
+  NEXT_PUBLIC_WORDPRESS_URL = "https://example.com"
+  WC_CONSUMER_KEY = "dummy_key"
+  WC_CONSUMER_SECRET = "dummy_secret"
+
+[context.deploy-preview.environment]
+  NEXT_PUBLIC_WORDPRESS_URL = "https://example.com"
+  WC_CONSUMER_KEY = "dummy_key"
+  WC_CONSUMER_SECRET = "dummy_secret"
+
+[context.branch-deploy.environment]
+  NEXT_PUBLIC_WORDPRESS_URL = "https://example.com"
+  WC_CONSUMER_KEY = "dummy_key"
+  WC_CONSUMER_SECRET = "dummy_secret"
+
 [[plugins]]
   package = "@netlify/plugin-nextjs"
