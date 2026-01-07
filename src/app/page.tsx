@@ -1,46 +1,35 @@
 import { getProducts } from "@/lib/woocommerce";
-import Link from "next/link";
-import Image from "next/image";
+import ProductCard from "@/components/ProductCard";
 
 export default async function Home() {
   const products = await getProducts();
 
   return (
-    <div className="min-h-screen p-8 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 items-center sm:items-start">
-        <h1 className="text-4xl font-bold mb-4">Kyriakos E-Shop</h1>
-        
+    <div className="min-h-screen bg-background">
+      {/* Hero Section */}
+      <section className="py-20 px-8 text-center">
+        <h1 className="font-[family-name:var(--font-playfair)] text-5xl md:text-6xl font-bold mb-6">
+          Summer Collection 2024
+        </h1>
+        <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          Discover our latest arrivals and embrace the season with style.
+        </p>
+        <a 
+          href="#products"
+          className="inline-block bg-primary text-white px-8 py-3 rounded-full font-semibold hover:bg-primary/90 transition-colors"
+        >
+          Shop Now
+        </a>
+      </section>
+
+      {/* Products Grid */}
+      <main id="products" className="flex flex-col gap-8 items-center px-8 pb-20">
         {products.length === 0 ? (
           <p className="text-xl text-gray-500">No products found.</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full max-w-7xl">
             {products.map((product) => (
-              <Link 
-                href={`/product/${product.slug}?id=${product.id}`}
-                key={product.id} 
-                className="border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col bg-white"
-              >
-                {product.images[0] ? (
-                  <Image
-                    src={product.images[0].src} 
-                    alt={product.images[0].alt || product.name} 
-                    width={400}
-                    height={400}
-                    className="w-full h-64 object-cover rounded-md mb-4"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="w-full h-64 bg-gray-100 rounded-md mb-4 flex items-center justify-center text-gray-400">No Image</div>
-                )}
-                <h2 className="text-lg font-semibold mb-2 line-clamp-2">{product.name}</h2>
-                {product.short_description && (
-                  <p 
-                    className="text-sm text-gray-500 mb-3 line-clamp-2"
-                    dangerouslySetInnerHTML={{ __html: product.short_description }}
-                  />
-                )}
-                <p className="text-xl font-bold mt-auto text-gray-900">€{product.price}</p>
-              </Link>
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         )}
