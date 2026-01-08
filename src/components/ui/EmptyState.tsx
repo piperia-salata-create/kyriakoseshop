@@ -1,4 +1,4 @@
-import { spacing, typography, colors } from '@/lib/design-tokens';
+import { spacing, typography } from '@/lib/design-tokens';
 import Link from 'next/link';
 import Button from './Button';
 

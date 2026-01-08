@@ -46,8 +46,7 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
 
   // Strip HTML tags from description and limit length
   const description = product.short_description.replace(/<[^>]*>?/gm, '').substring(0, 160);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kyriakoseshop.com';
-  const productUrl = `${siteUrl}/product/${product.slug}`;
+  const productUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://kyriakoseshop.com'}/product/${product.slug}`;
 
   return {
     title: {
@@ -117,7 +116,6 @@ export default async function ProductPage({ params, searchParams }: Props) {
 
   // Generate structured data
   const productSchema = generateProductSchema(product);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kyriakoseshop.com';
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: 'Home', url: '/' },
     { name: product.name, url: `/product/${product.slug}` },

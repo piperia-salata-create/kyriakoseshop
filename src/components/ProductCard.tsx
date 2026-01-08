@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { spacing, shadows, transitions, radius, typography } from "@/lib/design-tokens";
+import { spacing, shadows, transitions, radius } from "@/lib/design-tokens";
 
 interface ProductCardProps {
   product: {

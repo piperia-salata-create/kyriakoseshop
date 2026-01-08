@@ -3,6 +3,7 @@
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import type { Metadata } from "next";
 import EmptyState from "@/components/ui/EmptyState";
 
@@ -62,9 +63,11 @@ export default function CartPage() {
               {/* Image */}
               <div className="w-24 h-24 flex-shrink-0 rounded-md overflow-hidden" style={{ backgroundColor: 'var(--color-background)' }}>
                 {item.images[0] ? (
-                  <img
+                  <Image
                     src={item.images[0].src}
                     alt={item.images[0].alt || item.name}
+                    width={96}
+                    height={96}
                     className="w-full h-full object-cover"
                   />
                 ) : (

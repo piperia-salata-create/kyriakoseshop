@@ -1,5 +1,5 @@
 import { ButtonHTMLAttributes, forwardRef } from 'react';
-import { radius, transitions, typography } from '@/lib/design-tokens';
+import { radius, transitions } from '@/lib/design-tokens';
 
 type ButtonVariant = 'primary' | 'outline' | 'ghost';
 type ButtonSize = 'sm' | 'md' | 'lg';
