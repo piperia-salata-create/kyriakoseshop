@@ -65,7 +65,7 @@ function validateEnv() {
   // Check required variables
   for (const key of config.required) {
     const value = process.env[key];
-    if (!value) {
+    if (!value || value.trim() === '') {
       errors.push({ key, message: 'Required variable is not set' });
       log(`✗ ${key}`, 'red');
     } else {
@@ -77,7 +77,7 @@ function validateEnv() {
   // Check optional variables
   for (const key of config.optional) {
     const value = process.env[key];
-    if (!value) {
+    if (!value || value.trim() === '') {
       warnings.push(key);
       log(`△ ${key} (optional) - not set`, 'yellow');
     } else {
