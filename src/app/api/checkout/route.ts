@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { logger, logApiRequest, logApiResponse, logApiError } from '@/lib/logger';
+import { logApiRequest, logApiResponse, logApiError } from '@/lib/logger';
 import { ErrorCode } from '@/lib/errors';
 import { assertEnvironment, getEnvVar } from '@/lib/env';
 
