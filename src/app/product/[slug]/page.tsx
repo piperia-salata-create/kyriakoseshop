@@ -67,10 +67,10 @@ export default async function ProductPage({ params, searchParams }: Props) {
   }
 
   return (
-    <div className="min-h-screen p-8 sm:p-20">
+    <div className="min-h-screen p-8 sm:p-20" style={{ backgroundColor: 'var(--color-background)', color: 'var(--color-primary)' }}>
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
         {/* Left Column: Image */}
-        <div className="bg-white rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+        <div className="rounded-lg overflow-hidden shadow-sm" style={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-secondary)' }}>
           {product.images[0] ? (
             <Image
               src={product.images[0].src}
@@ -81,7 +81,7 @@ export default async function ProductPage({ params, searchParams }: Props) {
               priority={true}
             />
           ) : (
-            <div className="w-full h-96 bg-gray-100 flex items-center justify-center text-gray-400">
+            <div className="w-full h-96 flex items-center justify-center" style={{ backgroundColor: 'var(--color-background)', color: 'var(--color-primary)' }}>
               No Image
             </div>
           )}
@@ -89,12 +89,13 @@ export default async function ProductPage({ params, searchParams }: Props) {
 
         {/* Right Column: Details */}
         <div className="flex flex-col gap-6">
-          <h1 className="text-4xl font-bold text-gray-900">{product.name}</h1>
+          <h1 className="text-4xl font-bold" style={{ color: 'var(--color-primary)' }}>{product.name}</h1>
           
-          <p className="text-3xl font-bold text-gray-900">€{product.price}</p>
+          <p className="text-3xl font-bold" style={{ color: 'var(--color-secondary)' }}>€{product.price}</p>
           
           <div 
-            className="text-gray-600 leading-relaxed"
+            className="leading-relaxed"
+            style={{ color: 'var(--color-primary)', opacity: 0.8 }}
             dangerouslySetInnerHTML={{ __html: product.short_description }}
           />
 

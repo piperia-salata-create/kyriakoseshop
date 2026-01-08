@@ -82,11 +82,11 @@ export default function CheckoutPage() {
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen p-8 sm:p-20">
+    <div className="min-h-screen p-8 sm:p-20" style={{ backgroundColor: 'var(--color-background)', color: 'var(--color-primary)' }}>
       <h1 className="text-3xl font-bold mb-8">Checkout</h1>
       
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+        <div className="px-4 py-3 rounded mb-6" style={{ backgroundColor: '#fee2e2', border: '1px solid #fecaca', color: '#b91c1c' }}>
           {error}
         </div>
       )}
@@ -175,11 +175,11 @@ export default function CheckoutPage() {
         </div>
 
         {/* Right Column: Order Summary */}
-        <div className="bg-gray-50 p-6 rounded-lg h-fit">
+        <div className="p-6 rounded-lg h-fit" style={{ backgroundColor: 'var(--color-background)' }}>
           <h2 className="text-xl font-semibold mb-6">Your Order</h2>
           <div className="flex flex-col gap-4 mb-6">
             {cartItems.map((item) => (
-              <div key={item.id} className="flex justify-between items-center text-sm">
+              <div key={item.id} className="flex justify-between items-center text-sm" style={{ color: 'var(--color-primary)' }}>
                 <div className="flex items-center gap-2">
                    <span>{item.name} x {item.quantity}</span>
                 </div>
@@ -187,7 +187,7 @@ export default function CheckoutPage() {
               </div>
             ))}
           </div>
-          <div className="border-t border-gray-200 pt-4 flex justify-between items-center text-xl font-bold">
+          <div className="pt-4 flex justify-between items-center text-xl font-bold" style={{ color: 'var(--color-primary)', borderTopColor: 'var(--color-secondary)' }}>
             <span>Total</span>
             <span>€{cartTotal.toFixed(2)}</span>
           </div>

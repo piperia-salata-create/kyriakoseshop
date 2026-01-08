@@ -30,7 +30,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let productUrls: MetadataRoute.Sitemap = [];
 
   try {
-    const products = await getProducts(1000);
+    const products = await getProducts(100); // Limit to 100 to avoid 400 errors
 
     productUrls = products.map((product) => ({
       url: `${siteUrl}/product/${product.slug}?id=${product.id}`,

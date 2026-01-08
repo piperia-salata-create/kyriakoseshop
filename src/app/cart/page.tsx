@@ -17,12 +17,16 @@ export default function CartPage() {
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-8 gap-4">
-        <h1 className="text-2xl font-bold">Your Cart is Empty</h1>
-        <p className="text-gray-500">Looks like you haven't added anything yet.</p>
+      <div className="min-h-screen flex flex-col items-center justify-center p-8 gap-4" style={{ backgroundColor: 'var(--color-background)' }}>
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--color-primary)' }}>Your Cart is Empty</h1>
+        <p style={{ color: 'var(--color-primary)', opacity: 0.7 }}>Looks like you haven't added anything yet.</p>
         <Link
           href="/"
-          className="px-6 py-3 bg-black text-white rounded-md hover:bg-gray-800 transition-colors"
+          className="px-6 py-3 rounded-md hover:opacity-90 transition-colors"
+          style={{ 
+            backgroundColor: 'var(--color-primary)', 
+            color: 'var(--color-surface)' 
+          }}
         >
           Continue Shopping
         </Link>
@@ -31,7 +35,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen p-8 sm:p-20">
+    <div className="min-h-screen p-8 sm:p-20" style={{ backgroundColor: 'var(--color-background)', color: 'var(--color-primary)' }}>
       <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
 
       <div className="flex flex-col lg:flex-row gap-12">
@@ -40,10 +44,11 @@ export default function CartPage() {
           {cartItems.map((item) => (
             <div
               key={item.id}
-              className="flex flex-col sm:flex-row items-center gap-6 border-b border-gray-200 pb-6"
+              className="flex flex-col sm:flex-row items-center gap-6 pb-6"
+              style={{ borderBottomColor: 'var(--color-secondary)' }}
             >
               {/* Image */}
-              <div className="w-24 h-24 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden">
+              <div className="w-24 h-24 flex-shrink-0 rounded-md overflow-hidden" style={{ backgroundColor: 'var(--color-background)' }}>
                 {item.images[0] ? (
                   <img
                     src={item.images[0].src}
@@ -51,7 +56,7 @@ export default function CartPage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                  <div className="w-full h-full flex items-center justify-center text-xs" style={{ color: 'var(--color-primary)' }}>
                     No Image
                   </div>
                 )}
@@ -59,22 +64,32 @@ export default function CartPage() {
 
               {/* Details */}
               <div className="flex-1 text-center sm:text-left">
-                <h2 className="text-lg font-semibold">{item.name}</h2>
-                <p className="text-gray-500">€{item.price}</p>
+                <h2 className="text-lg font-semibold" style={{ color: 'var(--color-primary)' }}>{item.name}</h2>
+                <p style={{ color: 'var(--color-secondary)' }}>€{item.price}</p>
               </div>
 
               {/* Quantity */}
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                  className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100"
+                  className="w-8 h-8 flex items-center justify-center rounded hover:opacity-80 transition-colors"
+                  style={{ 
+                    borderColor: 'var(--color-secondary)', 
+                    color: 'var(--color-primary)',
+                    backgroundColor: 'transparent' 
+                  }}
                 >
                   -
                 </button>
-                <span className="text-gray-600 min-w-[2ch] text-center">{item.quantity}</span>
+                <span className="min-w-[2ch] text-center" style={{ color: 'var(--color-primary)' }}>{item.quantity}</span>
                 <button
                   onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                  className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100"
+                  className="w-8 h-8 flex items-center justify-center rounded hover:opacity-80 transition-colors"
+                  style={{ 
+                    borderColor: 'var(--color-secondary)', 
+                    color: 'var(--color-primary)',
+                    backgroundColor: 'transparent' 
+                  }}
                 >
                   +
                 </button>
@@ -83,7 +98,8 @@ export default function CartPage() {
               {/* Remove Button */}
               <button
                 onClick={() => removeFromCart(item.id)}
-                className="text-red-500 hover:text-red-700 font-medium text-sm"
+                className="font-medium text-sm hover:opacity-70 transition-colors"
+                style={{ color: '#ef4444' }}
               >
                 Remove
               </button>
@@ -92,24 +108,29 @@ export default function CartPage() {
           
           <button 
             onClick={clearCart}
-            className="self-start text-gray-500 underline text-sm hover:text-black mt-2"
+            className="self-start text-sm mt-2 hover:opacity-70 transition-colors underline"
+            style={{ color: 'var(--color-primary)' }}
           >
             Clear Cart
           </button>
         </div>
 
         {/* Summary Section */}
-        <div className="w-full lg:w-80 bg-gray-50 p-6 rounded-lg h-fit">
-          <h2 className="text-xl font-bold mb-6">Order Summary</h2>
+        <div className="w-full lg:w-80 p-6 rounded-lg h-fit" style={{ backgroundColor: 'var(--color-background)' }}>
+          <h2 className="text-xl font-bold mb-6" style={{ color: 'var(--color-primary)' }}>Order Summary</h2>
           
-          <div className="flex justify-between items-center mb-4 text-lg">
+          <div className="flex justify-between items-center mb-4 text-lg" style={{ color: 'var(--color-primary)' }}>
             <span>Total</span>
             <span className="font-bold">€{cartTotal.toFixed(2)}</span>
           </div>
 
           <Link
             href="/checkout"
-            className="block w-full py-3 bg-black text-white text-center rounded-md hover:bg-gray-800 transition-colors font-semibold"
+            className="block w-full py-3 text-center rounded-md hover:opacity-90 transition-colors font-semibold"
+            style={{ 
+              backgroundColor: 'var(--color-primary)', 
+              color: 'var(--color-surface)' 
+            }}
           >
             Proceed to Checkout
           </Link>
