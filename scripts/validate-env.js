@@ -7,8 +7,13 @@
  * Usage: node scripts/validate-env.js
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Get __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // ANSI color codes
 const colors = {
@@ -27,6 +32,25 @@ function logSection(title) {
   console.log('\n' + '='.repeat(60));
   log(title, 'cyan');
   console.log('='.repeat(60) + '\n');
+}
+
+// Load .env.local if it exists
+function loadEnvFile() {
+  const envPath = path.join(__dirname, '..', '.env.local');
+  if (fs.existsSync(envPath)) {
+    const content = fs.readFileSync(envPath, 'utf8');
+    const lines = content.split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith('#')) {
+        const [key, ...valueParts] = trimmed.split('=');
+        const value = valueParts.join('=').trim();
+        if (key && value) {
+          process.env[key] = value;
+        }
+      }
+    }
+  }
 }
 
 // Environment configurations
@@ -97,8 +121,9 @@ function validateEnv() {
     for (const { key, message } of errors) {
       console.log(`  • ${key}: ${message}`);
     }
-    console.log('\nPlease set the required environment variables and try again.');
-    console.log('Copy .env.local.example to .env.local and fill in the values, or create a .env.local file with your environment variables.\n');
+    console.log('\nPlease set the required environment variables in .env.local');
+    console.log('Example:');
+    console.log('  NEXT_PUBLIC_WORDPRESS_URL=https://your-woocommerce-store.com\n');
     process.exit(1);
   }
 
@@ -114,6 +139,9 @@ function validateEnv() {
   log('\n✓ Environment validation passed!', 'green');
   process.exit(0);
 }
+
+// Load environment variables first
+loadEnvFile();
 
 // Run validation
 validateEnv();

@@ -17,6 +17,7 @@ export default function Error({ error, reset }: ErrorBoundaryProps) {
     
     // Generate a unique error ID for tracking
     const id = `err_${Date.now().toString(36)}_${Math.random().toString(36).substr(2, 9)}`;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setErrorId(id);
   }, [error]);
 

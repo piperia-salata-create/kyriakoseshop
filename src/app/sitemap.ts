@@ -1,6 +1,11 @@
 import { MetadataRoute } from 'next';
 import { getProducts } from '@/lib/woocommerce';
 
+// Category interface for sitemap
+interface Category {
+  slug: string;
+}
+
 // Fetch categories from WooCommerce
 async function getCategories() {
   const wordpressUrl = process.env.NEXT_PUBLIC_WORDPRESS_URL;
@@ -97,7 +102,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Fetch and add categories
     const categories = await getCategories();
     if (Array.isArray(categories) && categories.length > 0) {
-      categoryUrls = categories.map((category: any) => ({
+      categoryUrls = categories.map((category: Category) => ({
         url: `${siteUrl}/category/${category.slug}`,
         lastModified: now,
         changeFrequency: 'weekly',

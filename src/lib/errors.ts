@@ -65,10 +65,23 @@ export function createError(
   };
 }
 
+// WooCommerce error response interface
+interface WooCommerceValidationError {
+  field: string;
+  product_id: number;
+  [key: string]: unknown;
+}
+
+interface WooCommerceErrorResponse {
+  error?: string;
+  message?: string;
+  validation_errors?: WooCommerceValidationError[];
+}
+
 // Normalize WooCommerce API errors
-export function normalizeWooCommerceError(error: any, source: NormalizedError['source'] = 'checkout'): NormalizedError {
+export function normalizeWooCommerceError(error: WooCommerceErrorResponse, source: NormalizedError['source'] = 'checkout'): NormalizedError {
   // Handle fetch/network errors
-  if (!error || error.name === 'TypeError') {
+  if (!error || error.message?.includes('fetch')) {
     return createError(
       ErrorCode.NETWORK_ERROR,
       'Unable to connect to the server. Please check your internet connection.',
@@ -79,20 +92,26 @@ export function normalizeWooCommerceError(error: any, source: NormalizedError['s
   // Handle API response with structured errors
   if (error.validation_errors && Array.isArray(error.validation_errors)) {
     const stockErrors = error.validation_errors.filter(
-      (err: any) => err.field === 'stock' || err.field === 'variation' || err.field === 'availability'
+      (err) => err.field === 'stock' || err.field === 'variation' || err.field === 'availability'
     );
-    const outOfStockProductIds = stockErrors.map((err: any) => err.product_id);
+    const outOfStockProductIds = stockErrors.map((err) => err.product_id);
+
+    const details: NonNullable<NormalizedError['details']> = {
+      validation_errors: error.validation_errors as Array<{
+        field: string;
+        product_id: number;
+        product_name: string;
+        message: string;
+        expected?: string;
+        actual?: string;
+      }>,
+      out_of_stock_product_ids: outOfStockProductIds,
+    };
 
     return createError(
       ErrorCode.VALIDATION_ERROR,
       error.error || 'Product data has changed. Please review your cart.',
-      {
-        details: {
-          validation_errors: error.validation_errors,
-          out_of_stock_product_ids: outOfStockProductIds,
-        },
-        source,
-      }
+      { details, source }
     );
   }
 
@@ -145,7 +164,7 @@ export function normalizeWooCommerceError(error: any, source: NormalizedError['s
 }
 
 // Parse error from response
-export function parseApiError(response: Response, data: any): NormalizedError {
+export function parseApiError(response: Response, data: WooCommerceErrorResponse): NormalizedError {
   if (response.status === 400) {
     return createError(
       ErrorCode.VALIDATION_ERROR,

@@ -57,28 +57,28 @@ export async function POST(request: NextRequest) {
       if (action === 'update' && data?.id) {
         // Revalidate specific product page
         revalidatePath(`/product/${data.id}`);
-        // @ts-ignore
+        // @ts-expect-error - revalidateTag may not have type definitions
         revalidateTag(`product-${data.id}`);
         
         // Also try to revalidate by slug if available
         if (data.changes?.slug) {
-          revalidatePath(`/product/${data.changes.slug}`);
+          revalidatePath(`/product/${String(data.changes.slug)}`);
         }
         
         // Revalidate product list and all products
         revalidatePath('/');
-        // @ts-ignore
+        // @ts-expect-error - revalidateTag may not have type definitions
         revalidateTag('products');
-        // @ts-ignore
+        // @ts-expect-error - revalidateTag may not have type definitions
         revalidateTag('product-list');
         
         console.log(`Revalidated product page: /product/${data.id}`);
       } else if (action === 'delete' && data?.id) {
         // Product was deleted, revalidate product list
         revalidatePath('/');
-        // @ts-ignore
+        // @ts-expect-error - revalidateTag may not have type definitions
         revalidateTag('products');
-        // @ts-ignore
+        // @ts-expect-error - revalidateTag may not have type definitions
         revalidateTag('product-list');
         console.log(`Product ${data.id} deleted, revalidated home page`);
       }
@@ -89,9 +89,9 @@ export async function POST(request: NextRequest) {
       if (action === 'created' || action === 'updated') {
         // Orders may affect stock, revalidate all products
         revalidatePath('/');
-        // @ts-ignore
+        // @ts-expect-error - revalidateTag may not have type definitions
         revalidateTag('products');
-        // @ts-ignore
+        // @ts-expect-error - revalidateTag may not have type definitions
         revalidateTag('product-list');
         console.log('Order created/updated, revalidated product cache');
       }
@@ -100,9 +100,9 @@ export async function POST(request: NextRequest) {
     // Handle product category changes
     if (resource === 'product_cat') {
       revalidatePath('/');
-      // @ts-ignore
+      // @ts-expect-error - revalidateTag may not have type definitions
       revalidateTag('products');
-      // @ts-ignore
+      // @ts-expect-error - revalidateTag may not have type definitions
       revalidateTag('product-list');
       console.log('Category changed, revalidated product cache');
     }
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
     // Generic tag revalidation
     const tagToRevalidate = request.nextUrl.searchParams.get('tag');
     if (tagToRevalidate) {
-      // @ts-ignore - revalidateTag signature may vary
+      // @ts-expect-error - revalidateTag signature may vary
       revalidateTag(tagToRevalidate);
       console.log(`Manually revalidated tag: ${tagToRevalidate}`);
     }
@@ -154,7 +154,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (tagToRevalidate) {
-    // @ts-ignore - revalidateTag signature may vary
+    // @ts-expect-error - revalidateTag signature may vary
     revalidateTag(tagToRevalidate);
     return NextResponse.json({
       revalidated: true,

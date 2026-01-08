@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { Metadata } from "next";
 import EmptyState from "@/components/ui/EmptyState";
-import Button from "@/components/ui/Button";
 
 export const metadata: Metadata = {
   title: 'Shopping Cart | Kyriakos E-Shop',
@@ -27,6 +26,7 @@ export default function CartPage() {
   // Prevent hydration mismatch by ensuring we only render on the client
   useEffect(() => {
     setMounted(true);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
   }, []);
 
   if (!mounted) return null;

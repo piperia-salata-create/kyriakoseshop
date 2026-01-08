@@ -47,7 +47,8 @@ export function getEnvironment(): Env {
   const nodeEnv = process.env.NODE_ENV || 'development';
   
   if (nodeEnv === 'production') return 'production';
-  if (nodeEnv === 'staging') return 'staging';
+  // NODE_ENV may not be 'staging' in some environments, but we support it
+  if ((process.env.NODE_ENV as string) === 'staging') return 'staging';
   return 'development';
 }
 

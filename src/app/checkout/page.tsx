@@ -115,10 +115,11 @@ export default function CheckoutPage() {
       logCartAction('checkout', 0);
       clearCart();
       router.push('/thank-you');
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error('An unexpected error occurred');
       setError(getUserFriendlyMessage({
         code: ErrorCode.NETWORK_ERROR,
-        message: err.message || 'An unexpected error occurred.',
+        message: error.message || 'An unexpected error occurred.',
         timestamp: new Date().toISOString(),
         source: 'network',
       }));

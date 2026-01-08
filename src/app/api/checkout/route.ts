@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { logger, logApiRequest, logApiResponse, logApiError } from '@/lib/logger';
-import { ErrorCode } from '@/lib/errors';
+import { ErrorCode, createError } from '@/lib/errors';
 import { assertEnvironment, getEnvVar } from '@/lib/env';
 
 interface LineItem {
@@ -19,10 +19,21 @@ interface ValidationError {
   actual?: string;
 }
 
-interface CheckoutErrorResponse {
-  error: string;
-  validation_errors: ValidationError[];
-  out_of_stock_product_ids?: number[];
+// WooCommerce product response interface
+interface WooCommerceProduct {
+  price: string;
+  name: string;
+  purchasable: boolean;
+  stock_status: string;
+  stock_quantity: number | null;
+}
+
+// WooCommerce variation response interface
+interface WooCommerceVariation {
+  price: string;
+  purchasable: boolean;
+  stock_status: string;
+  stock_quantity: number | null;
 }
 
 async function fetchProduct(baseUrl: string, consumerKey: string, consumerSecret: string, productId: number) {
@@ -89,7 +100,7 @@ function validatePrice(clientPrice: string | undefined, serverPrice: string, pro
   return null;
 }
 
-function validateStock(product: any, quantity: number, productName: string, productId: number): ValidationError | null {
+function validateStock(product: WooCommerceProduct, quantity: number, productName: string, productId: number): ValidationError | null {
   // Check stock status first
   if (product.stock_status === 'outofstock') {
     return {
@@ -115,7 +126,7 @@ function validateStock(product: any, quantity: number, productName: string, prod
   return null;
 }
 
-function validateVariationAvailability(variation: any, quantity: number, productName: string, productId: number, variationId: number): ValidationError | null {
+function validateVariationAvailability(variation: WooCommerceVariation | null, quantity: number, productName: string, productId: number, variationId: number): ValidationError | null {
   if (!variation) {
     return {
       field: 'variation',
