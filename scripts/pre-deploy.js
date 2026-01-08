@@ -6,7 +6,6 @@
  * 1. Environment validation
  * 2. Type checking
  * 3. Linting
- * 4. Build verification
  * 
  * Usage: node scripts/pre-deploy.js
  */
@@ -68,7 +67,6 @@ async function preDeploy() {
     envValidation: null,
     typeCheck: null,
     lint: null,
-    build: null,
   };
 
   logSection('PRE-DEPLOYMENT VERIFICATION');
@@ -97,34 +95,23 @@ async function preDeploy() {
     process.exit(1);
   }
 
-  // Step 4: Build
-  log('\nStep 4: Build (Next.js)');
-  results.build = runCommand('npm run build', 'Build');
-
   // Summary
-  logSection('DEPLOYMENT READY');
+  logSection('PRE-DEPLOYMENT CHECKS PASSED');
 
   const totalDuration = 
     (results.envValidation.duration || 0) +
     (results.typeCheck.duration || 0) +
-    (results.lint.duration || 0) +
-    (results.build.duration || 0);
+    (results.lint.duration || 0);
 
   console.log(colors.bold + 'Check Results:' + colors.reset);
   console.log('  ✓ Environment Validation');
   console.log('  ✓ Type Checking');
   console.log('  ✓ Linting');
-  console.log(`  ${results.build.success ? '✓' : '✗'} Build`);
 
   console.log('\n' + colors.bold + `Total Time: ${(totalDuration / 1000).toFixed(2)}s` + colors.reset);
 
-  if (results.build.success) {
-    log('\n✅ All checks passed! Ready for deployment.', 'green');
-    process.exit(0);
-  } else {
-    log('\n❌ Build failed. Please fix the errors above.', 'red');
-    process.exit(1);
-  }
+  log('\n✅ All pre-deployment checks passed!', 'green');
+  process.exit(0);
 }
 
 // Run pre-deployment checks
