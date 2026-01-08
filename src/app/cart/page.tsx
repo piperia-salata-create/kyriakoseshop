@@ -25,8 +25,10 @@ export default function CartPage() {
 
   // Prevent hydration mismatch by ensuring we only render on the client
   useEffect(() => {
-    setMounted(true);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    const id = setTimeout(() => {
+      setMounted(true);
+    }, 0);
+    return () => clearTimeout(id);
   }, []);
 
   if (!mounted) return null;
