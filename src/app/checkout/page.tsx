@@ -5,9 +5,29 @@ import { useRouter } from "next/navigation";
 import { useState, FormEvent, useEffect } from "react";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import { parseApiError, getUserFriendlyMessage, ErrorCode } from "@/lib/errors";
+import { logCartAction } from "@/lib/logger";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: 'Checkout | Kyriakos E-Shop',
+  description: 'Complete your purchase securely at Kyriakos E-Shop. Enter your billing details to place your order.',
+  robots: {
+    index: false,
+    follow: true,
+  },
+  openGraph: {
+    title: 'Checkout | Kyriakos E-Shop',
+    description: 'Complete your purchase securely.',
+    type: 'website',
+  },
+  alternates: {
+    canonical: '/checkout',
+  },
+};
 
 export default function CheckoutPage() {
-  const { cartItems, cartTotal, clearCart } = useCart();
+  const { cartItems, cartTotal, clearCart, removeOutOfStockItems } = useCart();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +61,12 @@ export default function CheckoutPage() {
     setError(null);
 
     if (cartItems.length === 0) {
-      setError("Your cart is empty.");
+      setError(getUserFriendlyMessage({
+        code: ErrorCode.CART_EMPTY,
+        message: 'Your cart is empty.',
+        timestamp: new Date().toISOString(),
+        source: 'cart',
+      }));
       setIsSubmitting(false);
       return;
     }
@@ -66,14 +91,37 @@ export default function CheckoutPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Something went wrong');
+        const normalizedError = parseApiError(res, data);
+        
+        // Handle out-of-stock items by removing them from cart
+        if (normalizedError.details?.out_of_stock_product_ids && normalizedError.details.out_of_stock_product_ids.length > 0) {
+          removeOutOfStockItems(normalizedError.details.out_of_stock_product_ids);
+          
+          // Build detailed message for removed items
+          const removedItems = normalizedError.details.validation_errors
+            ?.filter(err => normalizedError.details?.out_of_stock_product_ids?.includes(err.product_id))
+            .map(err => err.product_name)
+            .join(', ') || '';
+            
+          setError(`${getUserFriendlyMessage(normalizedError)}\n\nRemoved items: ${removedItems}`);
+        } else {
+          setError(getUserFriendlyMessage(normalizedError));
+        }
+        setIsSubmitting(false);
+        return;
       }
 
       alert('Order Placed!');
+      logCartAction('checkout', 0);
       clearCart();
       router.push('/thank-you');
     } catch (err: any) {
-      setError(err.message);
+      setError(getUserFriendlyMessage({
+        code: ErrorCode.NETWORK_ERROR,
+        message: err.message || 'An unexpected error occurred.',
+        timestamp: new Date().toISOString(),
+        source: 'network',
+      }));
     } finally {
       setIsSubmitting(false);
     }

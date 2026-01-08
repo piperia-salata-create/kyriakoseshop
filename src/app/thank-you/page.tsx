@@ -1,4 +1,18 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: 'Thank You | Kyriakos E-Shop',
+  description: 'Thank you for your order! Your purchase has been successfully placed at Kyriakos E-Shop.',
+  openGraph: {
+    title: 'Thank You | Kyriakos E-Shop',
+    description: 'Your order has been successfully placed.',
+    type: 'website',
+  },
+  alternates: {
+    canonical: '/thank-you',
+  },
+};
 
 export default function ThankYouPage() {
   return (

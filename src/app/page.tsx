@@ -1,5 +1,37 @@
 import { getProducts } from "@/lib/woocommerce";
 import ProductCard from "@/components/ProductCard";
+import type { Metadata } from "next";
+
+// ISR: Revalidate home page every 5 minutes
+// Products change frequently, so we want to show fresh content
+export const revalidate = 300;
+
+export const metadata: Metadata = {
+  title: {
+    default: 'Kyriakos E-Shop | Premium Online Store',
+    template: '%s | Kyriakos E-Shop',
+  },
+  description: 'Discover our latest arrivals and shop premium products at Kyriakos E-Shop. Quality items with fast shipping.',
+  keywords: ['online shop', 'e-commerce', 'premium products', 'shopping'],
+  authors: [{ name: 'Kyriakos E-Shop' }],
+  creator: 'Kyriakos E-Shop',
+  publisher: 'Kyriakos E-Shop',
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    siteName: 'Kyriakos E-Shop',
+    title: 'Kyriakos E-Shop | Premium Online Store',
+    description: 'Discover our latest arrivals and shop premium products at Kyriakos E-Shop.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Kyriakos E-Shop | Premium Online Store',
+    description: 'Discover our latest arrivals and shop premium products at Kyriakos E-Shop.',
+  },
+  alternates: {
+    canonical: '/',
+  },
+};
 
 export default async function Home() {
   const products = await getProducts();

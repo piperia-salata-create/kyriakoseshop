@@ -9,6 +9,9 @@ export interface Product {
     alt: string;
   }[];
   short_description: string;
+  stock_status?: 'instock' | 'outofstock' | 'onbackorder';
+  stock_quantity?: number | null;
+  purchasable?: boolean;
 }
 
 export async function getProducts(perPage: number = 10): Promise<Product[]> {
@@ -33,7 +36,11 @@ export async function getProducts(perPage: number = 10): Promise<Product[]> {
       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       "Accept": "application/json",
     },
-    next: { revalidate: 60 },
+    // ISR with tags for on-demand revalidation
+    next: { 
+      revalidate: 300,
+      tags: ['products', 'product-list'],
+    },
   });
 
   if (!res.ok) {
@@ -71,7 +78,11 @@ export async function getProductById(id: string | number): Promise<Product | nul
       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       "Accept": "application/json",
     },
-    next: { revalidate: 60 },
+    // ISR with tags for on-demand revalidation
+    next: { 
+      revalidate: 60,
+      tags: ['products', `product-${id}`],
+    },
   });
 
   if (!res.ok) {

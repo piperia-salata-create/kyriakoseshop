@@ -3,6 +3,22 @@
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import type { Metadata } from "next";
+import EmptyState from "@/components/ui/EmptyState";
+import Button from "@/components/ui/Button";
+
+export const metadata: Metadata = {
+  title: 'Shopping Cart | Kyriakos E-Shop',
+  description: 'View and manage your shopping cart at Kyriakos E-Shop. Review your items and proceed to checkout.',
+  openGraph: {
+    title: 'Shopping Cart | Kyriakos E-Shop',
+    description: 'View and manage your shopping cart.',
+    type: 'website',
+  },
+  alternates: {
+    canonical: '/cart',
+  },
+};
 
 export default function CartPage() {
   const { cartItems, removeFromCart, updateQuantity, cartTotal, clearCart } = useCart();
@@ -17,20 +33,14 @@ export default function CartPage() {
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-8 gap-4" style={{ backgroundColor: 'var(--color-background)' }}>
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--color-primary)' }}>Your Cart is Empty</h1>
-        <p style={{ color: 'var(--color-primary)', opacity: 0.7 }}>Looks like you haven't added anything yet.</p>
-        <Link
-          href="/"
-          className="px-6 py-3 rounded-md hover:opacity-90 transition-colors"
-          style={{ 
-            backgroundColor: 'var(--color-primary)', 
-            color: 'var(--color-surface)' 
-          }}
-        >
-          Continue Shopping
-        </Link>
-      </div>
+      <EmptyState
+        title="Your Cart is Empty"
+        description="Looks like you haven't added anything yet."
+        action={{
+          label: "Continue Shopping",
+          href: "/"
+        }}
+      />
     );
   }
 

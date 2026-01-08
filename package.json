@@ -4,9 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/pre-deploy.js",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint . --max-warnings 0",
+    "type-check": "tsc --noEmit",
+    "validate-env": "node scripts/validate-env.js",
+    "pre-deploy": "node scripts/pre-deploy.js"
   },
   "dependencies": {
     "clsx": "^2.1.1",

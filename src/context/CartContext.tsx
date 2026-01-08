@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { Product } from '@/lib/woocommerce';
+import { logCartAction } from '@/lib/logger';
 
 export interface CartItem extends Product {
   quantity: number;
@@ -12,6 +13,7 @@ interface CartContextType {
   addToCart: (product: Product) => void;
   removeFromCart: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
+  removeOutOfStockItems: (productIds: number[]) => void;
   clearCart: () => void;
   cartTotal: number;
   cartCount: number;
@@ -44,6 +46,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [cartItems, isLoaded]);
 
   const addToCart = (product: Product) => {
+    logCartAction('add', product.id, 1);
     setCartItems((prev) => {
       const existingItem = prev.find((item) => item.id === product.id);
       if (existingItem) {
@@ -58,10 +61,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const removeFromCart = (productId: number) => {
+    logCartAction('remove', productId);
     setCartItems((prev) => prev.filter((item) => item.id !== productId));
   };
 
   const updateQuantity = (productId: number, quantity: number) => {
+    logCartAction('update', productId, quantity);
     if (quantity < 1) {
       removeFromCart(productId);
       return;
@@ -73,7 +78,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const removeOutOfStockItems = (productIds: number[]) => {
+    for (const id of productIds) {
+      logCartAction('remove', id);
+    }
+    setCartItems((prev) => prev.filter((item) => !productIds.includes(item.id)));
+  };
+
   const clearCart = () => {
+    logCartAction('checkout', 0);
     setCartItems([]);
   };
 
@@ -91,6 +104,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         addToCart,
         removeFromCart,
         updateQuantity,
+        removeOutOfStockItems,
         clearCart,
         cartTotal,
         cartCount,
