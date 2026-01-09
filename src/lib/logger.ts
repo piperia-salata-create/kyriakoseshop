@@ -17,7 +17,7 @@
 // - Personal names
 // =====================================================
 
-import { OrderStatus, OrderStatusHistoryEntry } from './types';
+import { OrderStatus } from './types';
 
 // Log levels
 export enum LogLevel {
