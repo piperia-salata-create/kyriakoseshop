@@ -1,17 +1,12 @@
 import { NextResponse } from 'next/server';
 import { 
-  logApiRequest, 
-  logApiResponse, 
-  logApiError,
   logCheckoutRequest,
   logCheckoutValidation,
   logCheckoutOrderCreated,
   logCheckoutError,
   setRequestId,
-  getRequestId,
   startRequest,
-  clearRequestContext,
-  getRequestDuration
+  clearRequestContext
 } from '@/lib/logger';
 import { assertEnvironment, getEnvVar } from '@/lib/env';
 import { OrderStatus, serializeStatusHistory } from '@/lib/types';
@@ -126,20 +121,11 @@ interface WooCommerceProduct {
   stock_quantity: number | null;
 }
 
-// WooCommerce variation response interface
-interface WooCommerceVariation {
-  price: string;
-  purchasable: boolean;
-  stock_status: string;
-  stock_quantity: number | null;
-}
-
 async function fetchProduct(
   baseUrl: string, 
   consumerKey: string, 
   consumerSecret: string, 
-  productId: number,
-  requestId: string
+  productId: number
 ) {
   const productUrl = `${baseUrl}/wp-json/wc/v3/products/${productId}?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}`;
   
@@ -165,8 +151,7 @@ async function fetchVariation(
   consumerKey: string, 
   consumerSecret: string, 
   productId: number, 
-  variationId: number,
-  requestId: string
+  variationId: number
 ) {
   const variationUrl = `${baseUrl}/wp-json/wc/v3/products/${productId}/variations/${variationId}?consumer_key=${consumerKey}&consumer_secret=${consumerSecret}`;
   
@@ -363,7 +348,7 @@ export async function POST(request: Request) {
     // Phase 1: Fetch all product data concurrently
     const productFetchPromises = line_items.map(async (item) => {
       try {
-        const product = await fetchProduct(baseUrl, consumerKey, consumerSecret, item.product_id, requestId);
+        const product = await fetchProduct(baseUrl, consumerKey, consumerSecret, item.product_id);
         return { item, product, error: null };
       } catch (fetchError) {
         return { item, product: null, error: fetchError };
@@ -446,7 +431,7 @@ export async function POST(request: Request) {
       if (item.variation_id) {
         const promise = (async () => {
           try {
-            const variation = await fetchVariation(baseUrl, consumerKey, consumerSecret, item.product_id, item.variation_id, requestId);
+            const variation = await fetchVariation(baseUrl, consumerKey, consumerSecret, item.product_id, item.variation_id);
             
             if (!variation) {
               validationErrors.push({
@@ -644,8 +629,7 @@ export async function POST(request: Request) {
     };
 
     const orderResult = await withRetry(createOrder, 'order_creation', requestId);
-    const res = orderResult.res;
-    const data = orderResult.data;
+    const { data } = orderResult;
 
     // Log successful order creation
     logCheckoutOrderCreated(
