@@ -53,18 +53,35 @@ function loadEnvFile() {
   }
 }
 
-// Environment configurations
+// Environment configurations for each environment type
+// Required variables MUST be set for the application to function
+// Optional variables enhance functionality but are not strictly necessary
 const envConfigs = {
+  // Development environment - minimal required for local development
   development: {
+    // Required: Site URL for frontend (required in all environments)
     required: ['NEXT_PUBLIC_WORDPRESS_URL'],
+    // Optional: WooCommerce API credentials for full checkout functionality
+    // Optional: Site URL and revalidation secret for advanced features
     optional: ['WC_CONSUMER_KEY', 'WC_CONSUMER_SECRET', 'NEXT_PUBLIC_SITE_URL', 'REVALIDATION_SECRET'],
   },
+  // Staging environment - more complete setup for pre-production testing
   staging: {
+    // Required: Site URL + WooCommerce credentials + public site URL
     required: ['NEXT_PUBLIC_WORDPRESS_URL', 'WC_CONSUMER_KEY', 'WC_CONSUMER_SECRET', 'NEXT_PUBLIC_SITE_URL'],
+    // Optional: Revalidation secret for on-demand ISR
     optional: ['REVALIDATION_SECRET'],
   },
+  // Production environment - all variables must be set
   production: {
+    // Required: All core variables for production operation
+    // - NEXT_PUBLIC_WORDPRESS_URL: WordPress/WooCommerce store URL
+    // - WC_CONSUMER_KEY: WooCommerce REST API consumer key
+    // - WC_CONSUMER_SECRET: WooCommerce REST API consumer secret
+    // - NEXT_PUBLIC_SITE_URL: Public site URL for SEO and canonical URLs
+    // - REVALIDATION_SECRET: Secret for on-demand incremental static regeneration
     required: ['NEXT_PUBLIC_WORDPRESS_URL', 'WC_CONSUMER_KEY', 'WC_CONSUMER_SECRET', 'NEXT_PUBLIC_SITE_URL', 'REVALIDATION_SECRET'],
+    // No optional variables in production - all features are required
     optional: [],
   },
 };
