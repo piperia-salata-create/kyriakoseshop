@@ -1,7 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { 
+  requireAdmin, 
+  checkAdminRateLimit, 
+  logAccessAttempt 
+} from '@/lib/auth';
+import { logger } from '@/lib/logger';
 
-// Secret token for webhook authentication
+// =====================================================
+// REVALIDATION ENDPOINT SECURITY
+// =====================================================
+//
+// This endpoint is ADMIN-ONLY.
+// Only users with the 'admin' role can revalidate cached content.
+//
+// PROTECTED CAPABILITIES:
+// - revalidate_cache: Required to trigger cache invalidation
+//
+// RATE LIMITING:
+// - Admins are limited to 10 requests per minute
+// - Excessive requests will be rejected with 429
+//
+// AUDIT LOGGING:
+// - All revalidation attempts are logged for security
+// =====================================================
+
+// Secret token for webhook authentication (additional layer)
 const REVALIDATION_SECRET = process.env.REVALIDATION_SECRET;
 
 // Validate the revalidation request
@@ -35,17 +59,48 @@ interface WooCommerceWebhookPayload {
 
 export async function POST(request: NextRequest) {
   try {
-    // Validate the request
+    // Step 1: Validate webhook secret (first layer of defense)
     if (!validateRequest(request)) {
+      logger.warn('Revalidation rejected: invalid webhook secret', {
+        endpoint: '/api/revalidate',
+        status_code: 401,
+        error_code: 'INVALID_SECRET',
+      });
+      
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       );
     }
 
+    // Step 2: Require admin authentication (second layer of defense)
+    const admin = requireAdmin(request);
+
+    // Step 3: Check rate limit
+    if (!checkAdminRateLimit(admin.id)) {
+      logger.warn('Revalidation rate limit exceeded', {
+        endpoint: '/api/revalidate',
+        status_code: 429,
+        error_code: 'RATE_LIMIT_EXCEEDED',
+        user_id: admin.id,
+      });
+      
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
     const payload: WooCommerceWebhookPayload = await request.json();
     
-    console.log('Received revalidation webhook:', payload);
+    logger.info('Revalidation webhook received', {
+      endpoint: '/api/revalidate',
+      payload: {
+        resource: payload.resource,
+        action: payload.action,
+        data_id: payload.data?.id,
+      },
+    });
 
     // Handle different webhook types
     const resource = payload.resource;
@@ -72,7 +127,10 @@ export async function POST(request: NextRequest) {
         // @ts-expect-error - revalidateTag may not have type definitions
         revalidateTag('product-list');
         
-        console.log(`Revalidated product page: /product/${data.id}`);
+        logger.info('Product cache revalidated', {
+          product_id: data.id,
+          revalidated_by: admin.id,
+        });
       } else if (action === 'delete' && data?.id) {
         // Product was deleted, revalidate product list
         revalidatePath('/');
@@ -80,7 +138,11 @@ export async function POST(request: NextRequest) {
         revalidateTag('products');
         // @ts-expect-error - revalidateTag may not have type definitions
         revalidateTag('product-list');
-        console.log(`Product ${data.id} deleted, revalidated home page`);
+        
+        logger.info('Product deleted, cache revalidated', {
+          product_id: data.id,
+          revalidated_by: admin.id,
+        });
       }
     }
 
@@ -93,7 +155,11 @@ export async function POST(request: NextRequest) {
         revalidateTag('products');
         // @ts-expect-error - revalidateTag may not have type definitions
         revalidateTag('product-list');
-        console.log('Order created/updated, revalidated product cache');
+        
+        logger.info('Order updated, product cache revalidated', {
+          order_id: data?.id,
+          revalidated_by: admin.id,
+        });
       }
     }
 
@@ -104,23 +170,43 @@ export async function POST(request: NextRequest) {
       revalidateTag('products');
       // @ts-expect-error - revalidateTag may not have type definitions
       revalidateTag('product-list');
-      console.log('Category changed, revalidated product cache');
+      
+      logger.info('Category changed, cache revalidated', {
+        revalidated_by: admin.id,
+      });
     }
 
-    // Generic revalidation via query parameter
+    // Generic revalidation via query parameter (admin-only)
     const pathToRevalidate = request.nextUrl.searchParams.get('path');
     if (pathToRevalidate) {
       revalidatePath(pathToRevalidate);
-      console.log(`Manually revalidated path: ${pathToRevalidate}`);
+      logger.info('Manual path revalidation', {
+        path: pathToRevalidate,
+        revalidated_by: admin.id,
+      });
     }
 
-    // Generic tag revalidation
+    // Generic tag revalidation (admin-only)
     const tagToRevalidate = request.nextUrl.searchParams.get('tag');
     if (tagToRevalidate) {
       // @ts-expect-error - revalidateTag signature may vary
       revalidateTag(tagToRevalidate);
-      console.log(`Manually revalidated tag: ${tagToRevalidate}`);
+      logger.info('Manual tag revalidation', {
+        tag: tagToRevalidate,
+        revalidated_by: admin.id,
+      });
     }
+
+    // Log successful revalidation
+    logAccessAttempt(
+      admin,
+      'revalidate_cache',
+      payload.resource,
+      payload.data?.id,
+      true,
+      undefined,
+      request
+    );
 
     return NextResponse.json({
       revalidated: true,
@@ -130,8 +216,36 @@ export async function POST(request: NextRequest) {
         action,
         data,
       },
+      revalidated_by: admin.id,
     });
   } catch (error) {
+    const authError = error as { statusCode?: number; code?: string; message?: string };
+    
+    // Log failed access attempt
+    logAccessAttempt(
+      null,
+      'revalidate_cache',
+      undefined,
+      undefined,
+      false,
+      authError.message,
+      request
+    );
+    
+    if (authError.statusCode === 401) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Admin access required.' },
+        { status: 401 }
+      );
+    }
+    
+    if (authError.statusCode === 403) {
+      return NextResponse.json(
+        { error: 'Forbidden. Admin access required.' },
+        { status: 403 }
+      );
+    }
+    
     console.error('Revalidation error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -140,29 +254,78 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Also handle GET requests for manual revalidation
+// GET endpoint also requires admin authentication
 export async function GET(request: NextRequest) {
-  const pathToRevalidate = request.nextUrl.searchParams.get('path');
-  const tagToRevalidate = request.nextUrl.searchParams.get('tag');
+  try {
+    // Require admin authentication
+    const admin = requireAdmin(request);
 
-  if (pathToRevalidate) {
-    revalidatePath(pathToRevalidate);
+    // Check rate limit
+    if (!checkAdminRateLimit(admin.id)) {
+      logger.warn('Revalidation rate limit exceeded', {
+        endpoint: '/api/revalidate',
+        status_code: 429,
+        error_code: 'RATE_LIMIT_EXCEEDED',
+        user_id: admin.id,
+      });
+      
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      );
+    }
+
+    const pathToRevalidate = request.nextUrl.searchParams.get('path');
+    const tagToRevalidate = request.nextUrl.searchParams.get('tag');
+
+    if (pathToRevalidate) {
+      revalidatePath(pathToRevalidate);
+      
+      logger.info('Manual path revalidation (GET)', {
+        path: pathToRevalidate,
+        revalidated_by: admin.id,
+      });
+      
+      return NextResponse.json({
+        revalidated: true,
+        path: pathToRevalidate,
+        revalidated_by: admin.id,
+      });
+    }
+
+    if (tagToRevalidate) {
+      // @ts-expect-error - revalidateTag signature may vary
+      revalidateTag(tagToRevalidate);
+      
+      logger.info('Manual tag revalidation (GET)', {
+        tag: tagToRevalidate,
+        revalidated_by: admin.id,
+      });
+      
+      return NextResponse.json({
+        revalidated: true,
+        tag: tagToRevalidate,
+        revalidated_by: admin.id,
+      });
+    }
+
     return NextResponse.json({
-      revalidated: true,
-      path: pathToRevalidate,
+      error: 'Please provide path or tag parameter',
     });
+  } catch (error) {
+    const authError = error as { statusCode?: number; code?: string; message?: string };
+    
+    if (authError.statusCode === 401 || authError.statusCode === 403) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Admin access required.' },
+        { status: authError.statusCode }
+      );
+    }
+    
+    console.error('Revalidation error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
-
-  if (tagToRevalidate) {
-    // @ts-expect-error - revalidateTag signature may vary
-    revalidateTag(tagToRevalidate);
-    return NextResponse.json({
-      revalidated: true,
-      tag: tagToRevalidate,
-    });
-  }
-
-  return NextResponse.json({
-    error: 'Please provide path or tag parameter',
-  });
 }

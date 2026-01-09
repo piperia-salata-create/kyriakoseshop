@@ -236,10 +236,13 @@ export default function CheckoutPage() {
               </div>
             ))}
           </div>
-          <div className="pt-4 flex justify-between items-center text-xl font-bold" style={{ color: 'var(--color-primary)', borderTopColor: 'var(--color-secondary)' }}>
-            <span>Total</span>
+          <div className="pt-4 flex justify-between items-center text-lg font-bold" style={{ color: 'var(--color-primary)', borderTopColor: 'var(--color-secondary)' }}>
+            <span>Estimated Total*</span>
             <span>€{cartTotal.toFixed(2)}</span>
           </div>
+          <p className="text-xs mt-2" style={{ color: 'var(--color-secondary)' }}>
+            * Final total may vary based on current prices at checkout
+          </p>
         </div>
       </div>
     </div>

@@ -134,10 +134,14 @@ export default function CartPage() {
         <div className="w-full lg:w-80 p-6 rounded-lg h-fit" style={{ backgroundColor: 'var(--color-background)' }}>
           <h2 className="text-xl font-bold mb-6" style={{ color: 'var(--color-primary)' }}>Order Summary</h2>
           
-          <div className="flex justify-between items-center mb-4 text-lg" style={{ color: 'var(--color-primary)' }}>
-            <span>Total</span>
+          <div className="flex justify-between items-center mb-2 text-lg" style={{ color: 'var(--color-primary)' }}>
+            <span>Subtotal</span>
             <span className="font-bold">€{cartTotal.toFixed(2)}</span>
           </div>
+          
+          <p className="text-xs mb-4" style={{ color: 'var(--color-secondary)' }}>
+            * Total will be recalculated at checkout based on current prices
+          </p>
 
           <Link
             href="/checkout"
